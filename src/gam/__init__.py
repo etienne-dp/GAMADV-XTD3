@@ -53115,7 +53115,7 @@ def copyDriveFile(users):
         child.pop('parents', [])
         child['parents'] = [newFolderId]
         if childMimeType == MIMETYPE_GA_FOLDER:
-          if threading.active_count() < numWorkerThreads:
+          if threading.active_count() < 40:
             th = threading.Thread(target=_recursiveFolderCopy, args=(drive, user, i, count, k, kcount,
                                child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
                                False, depth))
