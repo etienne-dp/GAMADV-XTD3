@@ -53119,7 +53119,7 @@ def copyDriveFile(users):
             th = threading.Thread(target=_recursiveFolderCopy, args=(drive, user, i, count, k, kcount,
                                child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
                                False, depth))
-            recursiveThreads.append(t)
+            recursiveThreads.append(th)
             print('Active threads: {}, starting {}'.format(threading.active_count(), th))
             th.start()
           else:
