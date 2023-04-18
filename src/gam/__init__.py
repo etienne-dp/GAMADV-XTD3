@@ -25,7 +25,7 @@ https://github.com/taers232c/GAMADV-XTD3/wiki
 """
 
 __author__ = 'Ross Scroggs <ross.scroggs@gmail.com>'
-__version__ = '6.57.00'
+__version__ = '6.58.00'
 __license__ = 'Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0)'
 
 #pylint: disable=wrong-import-position
@@ -53115,9 +53115,17 @@ def copyDriveFile(users):
         child.pop('parents', [])
         child['parents'] = [newFolderId]
         if childMimeType == MIMETYPE_GA_FOLDER:
-          _recursiveFolderCopy(drive, user, i, count, k, kcount,
+          if threading.active_count() < numWorkerThreads:
+            th = threading.Thread(target=_recursiveFolderCopy, args=(drive, user, i, count, k, kcount,
                                child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
-                               False, depth)
+                               False, depth))
+            recursiveThreads.append(t)
+            print('Active threads: {}, starting {}'.format(threading.active_count(), th))
+            th.start()
+          else:
+            _recursiveFolderCopy(drive, user, i, count, k, kcount,
+                                child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
+                                False, depth)
         elif childMimeType == MIMETYPE_GA_SHORTCUT:
           shortcutsToCreate.append({'childName': childName, 'childId': childId, 'newChildName': newChildName,
                                     'newFolderId': newFolderId, 'newFolderName': newFolderName,
@@ -53182,6 +53190,8 @@ def copyDriveFile(users):
             _incrStatistic(statistics, STAT_FILE_FAILED)
       Ind.Decrement()
 
+  numWorkerThreads = GC.Values[GC.NUM_TBATCH_THREADS]
+  recursiveThreads = []
   fileIdEntity = getDriveFileEntity()
   csvPF = None
   addCSVData = {}
@@ -53350,6 +53360,8 @@ def copyDriveFile(users):
             _recursiveFolderCopy(drive, user, i, count, j, jcount,
                                  source, targetChildren, destName, newParentId, newParentName, dest['modifiedTime'],
                                  True, 0)
+            for t in recursiveThreads:
+              t.join()
             kcount = len(shortcutsToCreate)
             if kcount > 0:
               entityPerformActionNumItems([Ent.USER, user], kcount, Ent.DRIVE_FILE_SHORTCUT, i, count)
