@@ -53053,7 +53053,7 @@ def copyDriveFile(users):
     #print("Recursive function started with {} - {}".format(source['name'], depth))
     futures = []
     folderId = source['id']
-    drive = buildGAPIServiceObject(API.DRIVE3, user, i, count)
+    user, drive = buildGAPIServiceObject(API.DRIVE3, user, i, count)
     newFolderId, newFolderName, existingTargetFolder = _cloneFolderCopy(drive, user, i, count, j, jcount,
                                                                         source, targetChildren, newFolderName,
                                                                         newParentId, newParentName, mergeParentModifiedTime,
