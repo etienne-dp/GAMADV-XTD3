@@ -53049,6 +53049,7 @@ def copyDriveFile(users):
 
   def _recursiveFolderCopy(drive, user, i, count, j, jcount,
                            source, targetChildren, newFolderName, newParentId, newParentName, mergeParentModifiedTime, atTop, depth):
+    print("Recursive function started with {} - {}".format(source, depth))
     folderId = source['id']
     newFolderId, newFolderName, existingTargetFolder = _cloneFolderCopy(drive, user, i, count, j, jcount,
                                                                         source, targetChildren, newFolderName,
@@ -53353,10 +53354,12 @@ def copyDriveFile(users):
               _incrStatistic(statistics, STAT_FOLDER_DUPLICATE)
               continue
           if recursive:
+            print("Starting recursive folder copy...")
             _recursiveFolderCopy(drive, user, i, count, j, jcount,
                                  source, targetChildren, destName, newParentId, newParentName, dest['modifiedTime'],
                                  True, 0)
             concurrent.futures.wait(recursiveFutures)
+            print("All threads ended.")
             kcount = len(shortcutsToCreate)
             if kcount > 0:
               entityPerformActionNumItems([Ent.USER, user], kcount, Ent.DRIVE_FILE_SHORTCUT, i, count)
