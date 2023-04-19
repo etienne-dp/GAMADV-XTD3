@@ -53053,6 +53053,7 @@ def copyDriveFile(users):
     #print("Recursive function started with {} - {}".format(source['name'], depth))
     futures = []
     folderId = source['id']
+    drive = buildGAPIServiceObject(API.DRIVE3, user, i, count)
     newFolderId, newFolderName, existingTargetFolder = _cloneFolderCopy(drive, user, i, count, j, jcount,
                                                                         source, targetChildren, newFolderName,
                                                                         newParentId, newParentName, mergeParentModifiedTime,
@@ -53121,7 +53122,7 @@ def copyDriveFile(users):
         if childMimeType == MIMETYPE_GA_FOLDER:
           if depth < 4:
             print('Copying: {}'.format(childName))
-          futures.append(recursiveExecutor.submit(_recursiveFolderCopy, deepcopy(drive), user, i, count, k, kcount,
+          futures.append(recursiveExecutor.submit(_recursiveFolderCopy, drive, user, i, count, k, kcount,
                               child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
                               False, depth))
         elif childMimeType == MIMETYPE_GA_SHORTCUT:
@@ -53360,7 +53361,7 @@ def copyDriveFile(users):
               continue
           if recursive:
             print("Starting recursive folder copy...")
-            _recursiveFolderCopy(deepcopy(drive), user, i, count, j, jcount,
+            _recursiveFolderCopy(drive, user, i, count, j, jcount,
                                  source, targetChildren, destName, newParentId, newParentName, dest['modifiedTime'],
                                  True, 0)
             print("All threads ended.")
