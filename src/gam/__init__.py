@@ -53119,10 +53119,11 @@ def copyDriveFile(users):
         child['parents'] = [newFolderId]
         if childMimeType == MIMETYPE_GA_FOLDER:
           if depth < 4:
-            print('Copying: {}'.format(newFolderName))
+            print('Copying: {}'.format(childName))
           futures.append(recursiveExecutor.submit(_recursiveFolderCopy, (drive, user, i, count, k, kcount,
                               child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
                               False, depth)))
+          print(futures)
         elif childMimeType == MIMETYPE_GA_SHORTCUT:
           shortcutsToCreate.append({'childName': childName, 'childId': childId, 'newChildName': newChildName,
                                     'newFolderId': newFolderId, 'newFolderName': newFolderName,
