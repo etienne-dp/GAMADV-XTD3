@@ -53359,10 +53359,9 @@ def copyDriveFile(users):
               continue
           if recursive:
             print("Starting recursive folder copy...")
-            futures = _recursiveFolderCopy(drive, user, i, count, j, jcount,
+            _recursiveFolderCopy(drive, user, i, count, j, jcount,
                                  source, targetChildren, destName, newParentId, newParentName, dest['modifiedTime'],
                                  True, 0)
-            concurrent.futures.wait(futures)
             print("All threads ended.")
             kcount = len(shortcutsToCreate)
             if kcount > 0:
