@@ -53120,9 +53120,9 @@ def copyDriveFile(users):
         if childMimeType == MIMETYPE_GA_FOLDER:
           if depth < 4:
             print('Copying: {}'.format(childName))
-          futures.append(recursiveExecutor.submit(_recursiveFolderCopy, (drive, user, i, count, k, kcount,
+          futures.append(recursiveExecutor.submit(_recursiveFolderCopy, drive, user, i, count, k, kcount,
                               child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
-                              False, depth)))
+                              False, depth))
         elif childMimeType == MIMETYPE_GA_SHORTCUT:
           shortcutsToCreate.append({'childName': childName, 'childId': childId, 'newChildName': newChildName,
                                     'newFolderId': newFolderId, 'newFolderName': newFolderName,
@@ -53186,8 +53186,9 @@ def copyDriveFile(users):
             entityActionFailedWarning(kvList, str(e), k, kcount)
             _incrStatistic(statistics, STAT_FILE_FAILED)
       Ind.Decrement()
-    for future in concurrent.futures.as_completed(futures):
-      print(future.result())
+    # for future in concurrent.futures.as_completed(futures):
+    #   print(future.result())
+    concurrent.futures.wait(futures)
 
   # numWorkerThreads = GC.Values[GC.NUM_TBATCH_THREADS]
   recursiveExecutor = concurrent.futures.ThreadPoolExecutor(30)
