@@ -88,6 +88,7 @@ import wsgiref.simple_server
 import wsgiref.util
 import zipfile
 import concurrent.futures
+from copy import deepcopy
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -53047,7 +53048,7 @@ def copyDriveFile(users):
       nameMatchPattern = copyMoveOptions['fileNameMatchPattern']
     return not nameMatchPattern or nameMatchPattern.match(childName)
 
-  def _recursiveFolderCopy(drive, user, i, count, j, jcount,
+  def _recursiveFolderCopy(deepcopy(drive), user, i, count, j, jcount,
                            source, targetChildren, newFolderName, newParentId, newParentName, mergeParentModifiedTime, atTop, depth):
     #print("Recursive function started with {} - {}".format(source['name'], depth))
     futures = []
@@ -53359,7 +53360,7 @@ def copyDriveFile(users):
               continue
           if recursive:
             print("Starting recursive folder copy...")
-            _recursiveFolderCopy(drive, user, i, count, j, jcount,
+            _recursiveFolderCopy(deepcopy(drive), user, i, count, j, jcount,
                                  source, targetChildren, destName, newParentId, newParentName, dest['modifiedTime'],
                                  True, 0)
             print("All threads ended.")
