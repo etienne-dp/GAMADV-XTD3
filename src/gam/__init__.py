@@ -53049,7 +53049,7 @@ def copyDriveFile(users):
 
   def _recursiveFolderCopy(drive, user, i, count, j, jcount,
                            source, targetChildren, newFolderName, newParentId, newParentName, mergeParentModifiedTime, atTop, depth):
-    print("Recursive function started with {} - {}".format(source['name'], depth))
+    #print("Recursive function started with {} - {}".format(source['name'], depth))
     futures = []
     folderId = source['id']
     newFolderId, newFolderName, existingTargetFolder = _cloneFolderCopy(drive, user, i, count, j, jcount,
