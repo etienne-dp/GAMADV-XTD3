@@ -53048,7 +53048,7 @@ def copyDriveFile(users):
       nameMatchPattern = copyMoveOptions['fileNameMatchPattern']
     return not nameMatchPattern or nameMatchPattern.match(childName)
 
-  def _recursiveFolderCopy(deepcopy(drive), user, i, count, j, jcount,
+  def _recursiveFolderCopy(drive, user, i, count, j, jcount,
                            source, targetChildren, newFolderName, newParentId, newParentName, mergeParentModifiedTime, atTop, depth):
     #print("Recursive function started with {} - {}".format(source['name'], depth))
     futures = []
@@ -53121,7 +53121,7 @@ def copyDriveFile(users):
         if childMimeType == MIMETYPE_GA_FOLDER:
           if depth < 4:
             print('Copying: {}'.format(childName))
-          futures.append(recursiveExecutor.submit(_recursiveFolderCopy, drive, user, i, count, k, kcount,
+          futures.append(recursiveExecutor.submit(_recursiveFolderCopy, deepcopy(drive), user, i, count, k, kcount,
                               child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
                               False, depth))
         elif childMimeType == MIMETYPE_GA_SHORTCUT:
