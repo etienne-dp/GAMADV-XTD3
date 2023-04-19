@@ -87,6 +87,7 @@ import webbrowser
 import wsgiref.simple_server
 import wsgiref.util
 import zipfile
+import concurrent.futures
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -53115,17 +53116,11 @@ def copyDriveFile(users):
         child.pop('parents', [])
         child['parents'] = [newFolderId]
         if childMimeType == MIMETYPE_GA_FOLDER:
-          if threading.active_count() < 40:
-            th = threading.Thread(target=_recursiveFolderCopy, args=(drive, user, i, count, k, kcount,
-                               child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
-                               False, depth))
-            recursiveThreads.append(th)
-            print('Active threads: {}, starting {}'.format(threading.active_count(), th))
-            th.start()
-          else:
-            _recursiveFolderCopy(drive, user, i, count, k, kcount,
-                                child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
-                                False, depth)
+          if depth < 4:
+            print('Copying: {}'.format(newFolderName))
+          recursiveFutures.append(recursiveExecutor.submit(_recursiveFolderCopy, (drive, user, i, count, k, kcount,
+                              child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
+                              False, depth)))
         elif childMimeType == MIMETYPE_GA_SHORTCUT:
           shortcutsToCreate.append({'childName': childName, 'childId': childId, 'newChildName': newChildName,
                                     'newFolderId': newFolderId, 'newFolderName': newFolderName,
@@ -53190,8 +53185,9 @@ def copyDriveFile(users):
             _incrStatistic(statistics, STAT_FILE_FAILED)
       Ind.Decrement()
 
-  numWorkerThreads = GC.Values[GC.NUM_TBATCH_THREADS]
-  recursiveThreads = []
+  # numWorkerThreads = GC.Values[GC.NUM_TBATCH_THREADS]
+  recursiveExecutor = concurrent.futures.ThreadPoolExecutor(30)
+  recursiveFutures = []
   fileIdEntity = getDriveFileEntity()
   csvPF = None
   addCSVData = {}
@@ -53360,8 +53356,7 @@ def copyDriveFile(users):
             _recursiveFolderCopy(drive, user, i, count, j, jcount,
                                  source, targetChildren, destName, newParentId, newParentName, dest['modifiedTime'],
                                  True, 0)
-            for t in recursiveThreads:
-              t.join()
+            concurrent.futures.wait(recursiveFutures)
             kcount = len(shortcutsToCreate)
             if kcount > 0:
               entityPerformActionNumItems([Ent.USER, user], kcount, Ent.DRIVE_FILE_SHORTCUT, i, count)
