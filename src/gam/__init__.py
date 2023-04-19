@@ -53049,7 +53049,8 @@ def copyDriveFile(users):
 
   def _recursiveFolderCopy(drive, user, i, count, j, jcount,
                            source, targetChildren, newFolderName, newParentId, newParentName, mergeParentModifiedTime, atTop, depth):
-    print("Recursive function started with {} - {}".format(source, depth))
+    print("Recursive function started with {} - {}".format(source['name'], depth))
+    futures = []
     folderId = source['id']
     newFolderId, newFolderName, existingTargetFolder = _cloneFolderCopy(drive, user, i, count, j, jcount,
                                                                         source, targetChildren, newFolderName,
@@ -53119,7 +53120,7 @@ def copyDriveFile(users):
         if childMimeType == MIMETYPE_GA_FOLDER:
           if depth < 4:
             print('Copying: {}'.format(newFolderName))
-          recursiveFutures.append(recursiveExecutor.submit(_recursiveFolderCopy, (drive, user, i, count, k, kcount,
+          futures.append(recursiveExecutor.submit(_recursiveFolderCopy, (drive, user, i, count, k, kcount,
                               child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
                               False, depth)))
         elif childMimeType == MIMETYPE_GA_SHORTCUT:
@@ -53185,6 +53186,7 @@ def copyDriveFile(users):
             entityActionFailedWarning(kvList, str(e), k, kcount)
             _incrStatistic(statistics, STAT_FILE_FAILED)
       Ind.Decrement()
+    return futures
 
   # numWorkerThreads = GC.Values[GC.NUM_TBATCH_THREADS]
   recursiveExecutor = concurrent.futures.ThreadPoolExecutor(30)
@@ -53355,10 +53357,10 @@ def copyDriveFile(users):
               continue
           if recursive:
             print("Starting recursive folder copy...")
-            _recursiveFolderCopy(drive, user, i, count, j, jcount,
+            futures = _recursiveFolderCopy(drive, user, i, count, j, jcount,
                                  source, targetChildren, destName, newParentId, newParentName, dest['modifiedTime'],
                                  True, 0)
-            concurrent.futures.wait(recursiveFutures)
+            concurrent.futures.wait(futures)
             print("All threads ended.")
             kcount = len(shortcutsToCreate)
             if kcount > 0:
