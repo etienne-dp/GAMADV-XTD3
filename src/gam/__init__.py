@@ -53195,7 +53195,7 @@ def copyDriveFile(users):
     #   print(future.result())
     #concurrent.futures.wait(futures)
 
-  numWorkerThreads = GC.Values[GC.NUM_TBATCH_THREADS]
+  numWorkerThreads = GC.Values[GC.NUM_THREADS]
   recursiveExecutor = concurrent.futures.ThreadPoolExecutor(numWorkerThreads)
   totalCount = 0
   recursiveFuturesQueue = queue.Queue()
