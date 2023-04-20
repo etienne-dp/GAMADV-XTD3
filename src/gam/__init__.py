@@ -88,7 +88,6 @@ import wsgiref.simple_server
 import wsgiref.util
 import zipfile
 import concurrent.futures
-from copy import deepcopy
 import queue
 
 from cryptography import x509
@@ -53159,6 +53158,9 @@ def copyDriveFile(users):
                                                          k, kcount)
             else:
               _writeCSVData(user, childName, childId, result['name'], result['id'], childMimeType)
+            totalCount += 1
+            if totalCount % 5000 == 0:
+              print("Processed {} entities.".format(totalCount))
             _incrStatistic(statistics, STAT_FILE_COPIED_MOVED)
             copiedSourceFiles[childId] = result['id']
             copiedTargetFiles.add(result['id']) # Don't recopy file copied into a sub-folder
@@ -53193,8 +53195,9 @@ def copyDriveFile(users):
     #   print(future.result())
     #concurrent.futures.wait(futures)
 
-  # numWorkerThreads = GC.Values[GC.NUM_TBATCH_THREADS]
-  recursiveExecutor = concurrent.futures.ThreadPoolExecutor(120)
+  numWorkerThreads = GC.Values[GC.NUM_TBATCH_THREADS]
+  recursiveExecutor = concurrent.futures.ThreadPoolExecutor(numWorkerThreads)
+  totalCount = 0
   recursiveFuturesQueue = queue.Queue()
   fileIdEntity = getDriveFileEntity()
   csvPF = None
@@ -53361,7 +53364,7 @@ def copyDriveFile(users):
               _incrStatistic(statistics, STAT_FOLDER_DUPLICATE)
               continue
           if recursive:
-            print("Starting recursive folder copy...")
+            print("Starting recursive folder copy with {} threads.".format(numWorkerThreads))
             recursiveFuturesQueue.put(recursiveExecutor.submit(_recursiveFolderCopy, drive, user, i, count, j, jcount,
                                  source, targetChildren, destName, newParentId, newParentName, dest['modifiedTime'],
                                  True, 0))
