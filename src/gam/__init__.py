@@ -89,6 +89,7 @@ import wsgiref.util
 import zipfile
 import concurrent.futures
 from copy import deepcopy
+import queue
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
@@ -53051,7 +53052,7 @@ def copyDriveFile(users):
   def _recursiveFolderCopy(drive, user, i, count, j, jcount,
                            source, targetChildren, newFolderName, newParentId, newParentName, mergeParentModifiedTime, atTop, depth):
     #print("Recursive function started with {} - {}".format(source['name'], depth))
-    futures = []
+    #futures = []
     folderId = source['id']
     user, drive = buildGAPIServiceObject(API.DRIVE3, user, i, count)
     newFolderId, newFolderName, existingTargetFolder = _cloneFolderCopy(drive, user, i, count, j, jcount,
@@ -53122,7 +53123,7 @@ def copyDriveFile(users):
         if childMimeType == MIMETYPE_GA_FOLDER:
           if depth < 4:
             print('Copying: {}'.format(childName))
-          futures.append(recursiveExecutor.submit(_recursiveFolderCopy, drive, user, i, count, k, kcount,
+          recursiveFuturesQueue.put(recursiveExecutor.submit(_recursiveFolderCopy, drive, user, i, count, k, kcount,
                               child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
                               False, depth))
         elif childMimeType == MIMETYPE_GA_SHORTCUT:
@@ -53190,11 +53191,11 @@ def copyDriveFile(users):
       Ind.Decrement()
     # for future in concurrent.futures.as_completed(futures):
     #   print(future.result())
-    concurrent.futures.wait(futures)
+    #concurrent.futures.wait(futures)
 
   # numWorkerThreads = GC.Values[GC.NUM_TBATCH_THREADS]
-  recursiveExecutor = concurrent.futures.ThreadPoolExecutor(30)
-  recursiveFutures = []
+  recursiveExecutor = concurrent.futures.ThreadPoolExecutor(120)
+  recursiveFuturesQueue = queue.Queue()
   fileIdEntity = getDriveFileEntity()
   csvPF = None
   addCSVData = {}
@@ -53361,9 +53362,12 @@ def copyDriveFile(users):
               continue
           if recursive:
             print("Starting recursive folder copy...")
-            _recursiveFolderCopy(drive, user, i, count, j, jcount,
+            recursiveFuturesQueue.put(recursiveExecutor.submit(_recursiveFolderCopy, drive, user, i, count, j, jcount,
                                  source, targetChildren, destName, newParentId, newParentName, dest['modifiedTime'],
-                                 True, 0)
+                                 True, 0))
+            while not recursiveFuturesQueue.empty():
+              fut = recursiveFuturesQueue.get()
+              fut.result()
             print("All threads ended.")
             kcount = len(shortcutsToCreate)
             if kcount > 0:
