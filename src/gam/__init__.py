@@ -52863,7 +52863,6 @@ copyReturnItemMap = {
 #	[sendemailifrequired [<Boolean>]]
 #	[suppressnotselectedmessages [<Boolean>]]
 def copyDriveFile(users):
-  totalCount = 0
   def _writeCSVData(user, oldName, oldId, newName, newId, mimeType):
     row = {'User': user, fileNameTitle: oldName, 'id': oldId,
            newFileNameTitle: newName, 'newId': newId, 'mimeType': mimeType}
@@ -53159,9 +53158,9 @@ def copyDriveFile(users):
                                                          k, kcount)
             else:
               _writeCSVData(user, childName, childId, result['name'], result['id'], childMimeType)
-            totalCount += 1
-            if totalCount % 5000 == 0:
-              print("Processed {} entities.".format(totalCount))
+            # totalCount += 1
+            # if totalCount % 5000 == 0:
+            #   print("Processed {} entities.".format(totalCount))
             _incrStatistic(statistics, STAT_FILE_COPIED_MOVED)
             copiedSourceFiles[childId] = result['id']
             copiedTargetFiles.add(result['id']) # Don't recopy file copied into a sub-folder
