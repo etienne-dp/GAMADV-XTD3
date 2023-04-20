@@ -52863,6 +52863,7 @@ copyReturnItemMap = {
 #	[sendemailifrequired [<Boolean>]]
 #	[suppressnotselectedmessages [<Boolean>]]
 def copyDriveFile(users):
+  totalCount = 0
   def _writeCSVData(user, oldName, oldId, newName, newId, mimeType):
     row = {'User': user, fileNameTitle: oldName, 'id': oldId,
            newFileNameTitle: newName, 'newId': newId, 'mimeType': mimeType}
@@ -53197,7 +53198,6 @@ def copyDriveFile(users):
 
   numWorkerThreads = GC.Values[GC.NUM_THREADS]
   recursiveExecutor = concurrent.futures.ThreadPoolExecutor(numWorkerThreads)
-  totalCount = 0
   recursiveFuturesQueue = queue.Queue()
   fileIdEntity = getDriveFileEntity()
   csvPF = None
