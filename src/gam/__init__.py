@@ -142,6 +142,7 @@ import google_auth_httplib2
 import httplib2
 
 httplib2.RETRIES = 5
+totalCount = 0
 
 from passlib.hash import sha512_crypt
 
@@ -52863,6 +52864,7 @@ copyReturnItemMap = {
 #	[sendemailifrequired [<Boolean>]]
 #	[suppressnotselectedmessages [<Boolean>]]
 def copyDriveFile(users):
+  global totalCount
   def _writeCSVData(user, oldName, oldId, newName, newId, mimeType):
     row = {'User': user, fileNameTitle: oldName, 'id': oldId,
            newFileNameTitle: newName, 'newId': newId, 'mimeType': mimeType}
@@ -53158,9 +53160,9 @@ def copyDriveFile(users):
                                                          k, kcount)
             else:
               _writeCSVData(user, childName, childId, result['name'], result['id'], childMimeType)
-            # totalCount += 1
-            # if totalCount % 5000 == 0:
-            #   print("Processed {} entities.".format(totalCount))
+            totalCount += 1
+            if totalCount % 5000 == 0:
+              print("Processed {} entities.".format(totalCount))
             _incrStatistic(statistics, STAT_FILE_COPIED_MOVED)
             copiedSourceFiles[childId] = result['id']
             copiedTargetFiles.add(result['id']) # Don't recopy file copied into a sub-folder
@@ -53191,9 +53193,6 @@ def copyDriveFile(users):
             entityActionFailedWarning(kvList, str(e), k, kcount)
             _incrStatistic(statistics, STAT_FILE_FAILED)
       Ind.Decrement()
-    # for future in concurrent.futures.as_completed(futures):
-    #   print(future.result())
-    #concurrent.futures.wait(futures)
 
   numWorkerThreads = GC.Values[GC.NUM_THREADS]
   recursiveExecutor = concurrent.futures.ThreadPoolExecutor(numWorkerThreads)
