@@ -52864,7 +52864,6 @@ copyReturnItemMap = {
 #	[sendemailifrequired [<Boolean>]]
 #	[suppressnotselectedmessages [<Boolean>]]
 def copyDriveFile(users):
-  global totalCount
   def _writeCSVData(user, oldName, oldId, newName, newId, mimeType):
     row = {'User': user, fileNameTitle: oldName, 'id': oldId,
            newFileNameTitle: newName, 'newId': newId, 'mimeType': mimeType}
@@ -53052,8 +53051,7 @@ def copyDriveFile(users):
 
   def _recursiveFolderCopy(drive, user, i, count, j, jcount,
                            source, targetChildren, newFolderName, newParentId, newParentName, mergeParentModifiedTime, atTop, depth):
-    #print("Recursive function started with {} - {}".format(source['name'], depth))
-    #futures = []
+    global totalCount
     folderId = source['id']
     user, drive = buildGAPIServiceObject(API.DRIVE3, user, i, count)
     newFolderId, newFolderName, existingTargetFolder = _cloneFolderCopy(drive, user, i, count, j, jcount,
