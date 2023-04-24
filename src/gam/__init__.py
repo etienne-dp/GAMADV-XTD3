@@ -142,7 +142,7 @@ import google_auth_httplib2
 import httplib2
 
 httplib2.RETRIES = 5
-totalCount = 0
+lastFollowPrint = datetime.datetime.now()
 
 from passlib.hash import sha512_crypt
 
@@ -53051,7 +53051,7 @@ def copyDriveFile(users):
 
   def _recursiveFolderCopy(drive, user, i, count, j, jcount,
                            source, targetChildren, newFolderName, newParentId, newParentName, mergeParentModifiedTime, atTop, depth):
-    global totalCount
+    global lastFollowPrint
     folderId = source['id']
     user, drive = buildGAPIServiceObject(API.DRIVE3, user, i, count)
     newFolderId, newFolderName, existingTargetFolder = _cloneFolderCopy(drive, user, i, count, j, jcount,
@@ -53120,7 +53120,7 @@ def copyDriveFile(users):
         child.pop('parents', [])
         child['parents'] = [newFolderId]
         if childMimeType == MIMETYPE_GA_FOLDER:
-          if depth < 4:
+          if depth < 3:
             print('Copying: {}'.format(childName))
           recursiveFuturesQueue.put(recursiveExecutor.submit(_recursiveFolderCopy, drive, user, i, count, k, kcount,
                               child, subTargetChildren, newChildName, newFolderId, newFolderName, child['modifiedTime'],
@@ -53159,8 +53159,11 @@ def copyDriveFile(users):
             else:
               _writeCSVData(user, childName, childId, result['name'], result['id'], childMimeType)
             totalCount += 1
-            if totalCount % 5000 == 0:
-              print("Processed {} entities.".format(totalCount))
+            current_time = datetime.datetime.now()
+            elapsed_time = current_time - lastFollowPrint
+            if elapsed_time.total_seconds() >= 300: # 300 seconds = 5 minutes
+              lastFollowPrint = current_time
+              _printStatistics(user, statistics, i, count, True)
             _incrStatistic(statistics, STAT_FILE_COPIED_MOVED)
             copiedSourceFiles[childId] = result['id']
             copiedTargetFiles.add(result['id']) # Don't recopy file copied into a sub-folder
