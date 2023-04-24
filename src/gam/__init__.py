@@ -53158,7 +53158,6 @@ def copyDriveFile(users):
                                                          k, kcount)
             else:
               _writeCSVData(user, childName, childId, result['name'], result['id'], childMimeType)
-            totalCount += 1
             current_time = datetime.datetime.now()
             elapsed_time = current_time - lastFollowPrint
             if elapsed_time.total_seconds() >= 300: # 300 seconds = 5 minutes
