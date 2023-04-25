@@ -53123,6 +53123,7 @@ def copyDriveFile(users):
         elapsed_time = current_time - lastFollowPrint
         if elapsed_time.total_seconds() >= 300: # 300 seconds = 5 minutes
           lastFollowPrint = current_time
+          print('#### STATS {} : #####'.format(current_time.strftime("%m/%d/%Y - %H:%M:%S")))
           _printStatistics(user, statistics, i, count, True)
           flushStdout()
         if childMimeType == MIMETYPE_GA_FOLDER:
