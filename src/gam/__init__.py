@@ -53119,6 +53119,12 @@ def copyDriveFile(users):
           continue
         child.pop('parents', [])
         child['parents'] = [newFolderId]
+        current_time = datetime.datetime.now()
+        elapsed_time = current_time - lastFollowPrint
+        if elapsed_time.total_seconds() >= 300: # 300 seconds = 5 minutes
+          lastFollowPrint = current_time
+          _printStatistics(user, statistics, i, count, True)
+          flushStdout()
         if childMimeType == MIMETYPE_GA_FOLDER:
           if depth < 3:
             print('Copying: {}'.format(childName))
@@ -53158,11 +53164,6 @@ def copyDriveFile(users):
                                                          k, kcount)
             else:
               _writeCSVData(user, childName, childId, result['name'], result['id'], childMimeType)
-            current_time = datetime.datetime.now()
-            elapsed_time = current_time - lastFollowPrint
-            if elapsed_time.total_seconds() >= 300: # 300 seconds = 5 minutes
-              lastFollowPrint = current_time
-              _printStatistics(user, statistics, i, count, True)
             _incrStatistic(statistics, STAT_FILE_COPIED_MOVED)
             copiedSourceFiles[childId] = result['id']
             copiedTargetFiles.add(result['id']) # Don't recopy file copied into a sub-folder
