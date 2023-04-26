@@ -53121,7 +53121,7 @@ def copyDriveFile(users):
         child['parents'] = [newFolderId]
         current_time = datetime.datetime.now()
         elapsed_time = current_time - lastFollowPrint
-        if elapsed_time.total_seconds() >= 300: # 300 seconds = 5 minutes
+        if elapsed_time.total_seconds() >= 900: # 900 seconds = 15 minutes
           lastFollowPrint = current_time
           print('#### STATS {} : #####'.format(current_time.strftime("%m/%d/%Y - %H:%M:%S")))
           _printStatistics(user, statistics, i, count, True)
